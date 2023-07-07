@@ -1,0 +1,70 @@
+---
+title: "Education on Urban v. Rural"
+author: "Luit Deka"
+---
+
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(rstanarm)
+```
+
+```{r}
+#| message: false
+#| warning: false
+dataset <- read_csv("Data.csv") |>
+  as_tibble() |>
+  filter(Time == 2020)
+```
+
+```{r}
+#| message: false
+#| warning: false
+x <- dataset |>
+  mutate(Rural_PopPerc = `Rural population (% of total population) [SP.RUR.TOTL.ZS]`, Urban_PopPerc = `Urban population (% of total population) [SP.URB.TOTL.IN.ZS]`, Rural_PopGrowth = `Rural population growth (annual %) [SP.RUR.TOTL.ZG]`, Urban_PopGrowth = `Urban population growth (annual %) [SP.URB.GROW]`, Educ_Exp = `Government expenditure on education, total (% of government expenditure) [SE.XPD.TOTL.GB.ZS]`, Country_Name = `Country Name`)|>
+  select(Time, Country_Name,
+         Rural_PopPerc, Rural_PopGrowth, 
+         Urban_PopPerc, Urban_PopGrowth,
+         Educ_Exp)
+```
+
+```{r}
+#| message: false
+#| warning: false
+data <- x |> mutate(Educ_Exp = as.numeric(Educ_Exp),
+            Rural_PopPerc = as.numeric(Rural_PopPerc),
+            Rural_PopGrowth = as.numeric(Rural_PopGrowth),
+            Urban_PopPerc = as.numeric(Urban_PopPerc),
+            Urban_PopGrowth = as.numeric(Urban_PopGrowth)) |>
+            drop_na()
+data
+
+```
+
+
+```{r}
+#| message: false
+#| warning: false
+fit_obj1 <- stan_glm(data = data,
+            formula = Educ_Exp ~ Urban_PopGrowth,
+            family = gaussian,
+            refresh = 0,
+            seed = 42)
+  
+fit_obj1
+```
+
+```{r}
+#| message: false
+#| warning: false
+fit_obj2 <- stan_glm(data = data,
+            formula = Educ_Exp ~ Rural_PopGrowth,
+            family = gaussian,
+            refresh = 0,
+            seed = 42)
+  
+fit_obj2
+```
+
+
